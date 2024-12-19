@@ -23,8 +23,11 @@ func NewApiServer(addr string, db *pgxpool.Pool) *APIServer {
 func (s *APIServer) Run() error {
 	router := gin.Default()
 	v0 := router.Group("/api/v1")
-	userHandler := user.NewHandler()
+
+	userStore := user.NewStore(s.db)
+	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(v0)
+
 	log.Println("Listening on", s.addr)
 	return router.Run(s.addr)
 }
