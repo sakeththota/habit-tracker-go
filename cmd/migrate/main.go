@@ -34,6 +34,21 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// currentVersion, dirty, err := m.Version()
+	// if err != nil {
+	// 	log.Fatal("Failed to get current version:", err)
+	// }
+
+	// fmt.Printf("Current version: %d, Dirty: %v\n", currentVersion, dirty)
+
+	// if dirty {
+	// 	fmt.Println("Database is in a dirty state. Attempting to fix...")
+	// 	if err := m.Force(int(currentVersion)); err != nil {
+	// 		log.Fatal("Failed to force the version:", err)
+	// 	}
+	// 	fmt.Println("Successfully marked the database as clean.")
+	// }
+
 	cmd := os.Args[(len(os.Args) - 1)]
 	if cmd == "up" {
 		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
