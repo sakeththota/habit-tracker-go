@@ -11,13 +11,11 @@ type UserStore interface {
 }
 
 type User struct {
-	ID              int       `json:"id"`
-	Username        string    `json:"username"`
-	Email           string    `json:"email"`
-	PasswordHash    string    `json:"-"`
-	OAuthProvider   string    `json:"oauth_provider"`
-	OAuthProviderId string    `json:"oauth_provider_id"`
-	CreatedAt       time.Time `json:"created_at"`
+	ID           int       `json:"id"`
+	Username     string    `json:"username"`
+	Email        string    `json:"email"`
+	PasswordHash string    `json:"-"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type RegisterUserPayload struct {

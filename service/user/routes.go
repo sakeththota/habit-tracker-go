@@ -30,7 +30,8 @@ func (h *Handler) handleRegister(c *gin.Context) {
 	// get JSON payload
 	var payload types.RegisterUserPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	// check if user exists
@@ -44,6 +45,7 @@ func (h *Handler) handleRegister(c *gin.Context) {
 	hashedPassword, err := auth.HashPassword(payload.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 	err = h.store.CreateUser(types.User{
 		Username:     payload.Username,
@@ -52,6 +54,7 @@ func (h *Handler) handleRegister(c *gin.Context) {
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusCreated, nil)

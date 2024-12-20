@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/golang-migrate/migrate v3.5.4+incompatible
+	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/joho/godotenv v1.5.1
@@ -52,5 +52,6 @@ require (
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -20,6 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer dbpool.Close()
 
 	server := api.NewApiServer(":8080", dbpool)
 	if err := server.Run(); err != nil {

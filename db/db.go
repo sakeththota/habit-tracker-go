@@ -20,13 +20,11 @@ type PgxConfig struct {
 
 func NewPgxPool(cfg PgxConfig) (*pgxpool.Pool, error) {
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Schema)
-
 	ctx := context.Background()
 	dbpool, err := pgxpool.New(ctx, connStr)
-	log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 	if err != nil {
+		log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 	}
-	defer dbpool.Close()
 
 	return dbpool, nil
 }
