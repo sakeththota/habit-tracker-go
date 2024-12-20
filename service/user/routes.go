@@ -24,23 +24,20 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 func (h *Handler) handleLogin(c *gin.Context) {
-	// get JSON payload
 	var payload types.LoginUserPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// check if user exists by email
 	u, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint("user not found, invalid email or password")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found, invalid email or password"})
 		return
 	}
 
-	// check if password matches returned user
 	if !auth.ComparePasswords(u.PasswordHash, []byte(payload.Password)) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint("user not found, invalid email or password")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found, invalid email or password"})
 		return
 	}
 
@@ -55,21 +52,18 @@ func (h *Handler) handleLogin(c *gin.Context) {
 }
 
 func (h *Handler) handleRegister(c *gin.Context) {
-	// get JSON payload
 	var payload types.RegisterUserPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// check if user exists
 	_, err := h.store.GetUserByEmail(payload.Email)
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("user with email %s already exists", payload.Email)})
 		return
 	}
 
-	// if not create the user
 	hashedPassword, err := auth.HashPassword(payload.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
