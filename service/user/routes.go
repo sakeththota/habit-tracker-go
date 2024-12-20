@@ -30,7 +30,6 @@ func (h *Handler) handleRegister(c *gin.Context) {
 	// get JSON payload
 	var payload types.RegisterUserPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		fmt.Println("some error")
 		c.JSON(http.StatusBadRequest, err)
 	}
 

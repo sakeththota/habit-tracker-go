@@ -7,6 +7,22 @@ test:
 run:
 	@./bin/habit-tracker-go
 
+docker-run:
+	@if docker compose up --build 2>/dev/null; then \
+		: ; \
+	else \
+		echo "Falling back to Docker Compose V1"; \
+		docker-compose up --build; \
+	fi
+
+docker-down:
+	@if docker compose down 2>/dev/null; then \
+		: ; \
+	else \
+		echo "Falling back to Docker Compose V1"; \
+		docker-compose down; \
+	fi
+
 migration:
 	@migrate create -ext sql -dir cmd/migrate/migrations $(filter-out $@,$(MAKECMDGOALS))
 
@@ -15,3 +31,4 @@ migrate-up:
 
 migrate-down:
 	@go run cmd/migrate/main.go down
+
