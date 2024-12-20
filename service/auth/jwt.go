@@ -1,11 +1,16 @@
 package auth
 
 import (
+	"fmt"
+	"log"
+	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/sakeththota/habit-tracker-go/config"
+	"github.com/sakeththota/habit-tracker-go/types"
 )
 
 func CreateJWT(secret []byte, userID int) (string, error) {
@@ -21,4 +26,75 @@ func CreateJWT(secret []byte, userID int) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func WithJWTAuth(handlerFunc gin.HandlerFunc, store types.UserStore) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// get token from user request
+		tokenString := getTokenFromRequest(c)
+
+		// validate jwt
+		token, err := validateToken(tokenString)
+		if err != nil {
+			log.Printf("failed to validate token: %v", err)
+			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied")})
+			return
+		}
+
+		if !token.Valid {
+			log.Println("invalid token")
+			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied")})
+			return
+		}
+
+		// if is we need to fetch the userId from the DB (id from the token)
+		claims := token.Claims.(jwt.MapClaims)
+		str := claims["userID"].(string)
+
+		userID, err := strconv.Atoi(str)
+		if err != nil {
+			log.Printf("failed to convert userID to int: %v", err)
+			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied")})
+			return
+		}
+
+		u, err := store.GetUserById(userID)
+		if err != nil {
+			log.Printf("failed to get user by id: %v", err)
+			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied")})
+			return
+		}
+
+		// set context "userId"
+		c.Set("userID", u.ID)
+
+		handlerFunc(c)
+	}
+}
+
+func getTokenFromRequest(c *gin.Context) string {
+	tokenAuth := c.GetHeader("Authorization")
+	if tokenAuth != "" {
+		return tokenAuth
+	}
+	return ""
+}
+
+func validateToken(t string) (*jwt.Token, error) {
+	return jwt.Parse(t, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+
+		return []byte(config.Envs.JWTSecret), nil
+	})
+}
+
+func GetUserIDFromContext(c *gin.Context) int {
+	userID, ok := c.Get("userID")
+	if !ok {
+		return -1
+	}
+
+	return userID.(int)
 }

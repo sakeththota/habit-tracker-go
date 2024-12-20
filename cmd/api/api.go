@@ -30,7 +30,7 @@ func (s *APIServer) Run() error {
 	userHandler.RegisterRoutes(v1)
 
 	habitStore := habit.NewStore(s.db)
-	habitHandler := habit.NewHandler(habitStore)
+	habitHandler := habit.NewHandler(habitStore, userStore)
 	habitHandler.RegisterRoutes(v1)
 
 	log.Println("Listening on", s.addr)
