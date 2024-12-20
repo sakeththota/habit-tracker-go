@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -9,7 +10,7 @@ import (
 )
 
 type PgxConfig struct {
-	Name     string
+	Database string
 	Password string
 	Username string
 	Port     string
@@ -17,15 +18,26 @@ type PgxConfig struct {
 	Schema   string
 }
 
-func NewPostgreSQLStorage(cfg PgxConfig) (*pgxpool.Pool, error) {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Name, cfg.Password, cfg.Username, cfg.Port, cfg.Host, cfg.Schema)
+func NewPgxPool(cfg PgxConfig) (*pgxpool.Pool, error) {
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Schema)
 
 	ctx := context.Background()
 	dbpool, err := pgxpool.New(ctx, connStr)
+	log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 	if err != nil {
-		log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 	}
 	defer dbpool.Close()
 
 	return dbpool, nil
+}
+
+func NewPgxDb(cfg PgxConfig) (*sql.DB, error) {
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Schema)
+
+	db, err := sql.Open("pgx", connStr)
+	if err != nil {
+		log.Fatalf("Failed to connect to PostgreSQL: %v", err)
+	}
+
+	return db, nil
 }

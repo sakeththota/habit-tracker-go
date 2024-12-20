@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	dbpool, err := db.NewPostgreSQLStorage(db.PgxConfig{
-		Name:     config.Envs.DBName,
+	dbpool, err := db.NewPgxPool(db.PgxConfig{
+		Database: config.Envs.DBName,
 		Password: config.Envs.DBPassword,
 		Username: config.Envs.DBUsername,
 		Port:     config.Envs.DBPort,
