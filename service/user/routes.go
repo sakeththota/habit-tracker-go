@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sakeththota/habit-tracker-go/config"
 	"github.com/sakeththota/habit-tracker-go/service/auth"
 	"github.com/sakeththota/habit-tracker-go/types"
 )
@@ -23,7 +24,34 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 func (h *Handler) handleLogin(c *gin.Context) {
-	c.JSON(200, gin.H{"message": "User login endpoint successfully registered"})
+	// get JSON payload
+	var payload types.LoginUserPayload
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// check if user exists by email
+	u, err := h.store.GetUserByEmail(payload.Email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint("user not found, invalid email or password")})
+		return
+	}
+
+	// check if password matches returned user
+	if !auth.ComparePasswords(u.PasswordHash, []byte(payload.Password)) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint("user not found, invalid email or password")})
+		return
+	}
+
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, u.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User successfully logged in", "token": token})
 }
 
 func (h *Handler) handleRegister(c *gin.Context) {
