@@ -10,6 +10,18 @@ type UserStore interface {
 	CreateUser(user User) error
 }
 
+type HabitStore interface {
+	GetHabits(user_id int) ([]Habit, error)
+}
+
+type Habit struct {
+	ID          int       `json:"id"`
+	UserID      int       `json:"user_id"`
+	Title       string    `json:"title"`
+	Description string    `json:"string"`
+	CreatedAt   time.Time `json:"created_at`
+}
+
 type User struct {
 	ID           int       `json:"id"`
 	Username     string    `json:"username"`
