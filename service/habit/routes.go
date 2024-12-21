@@ -19,7 +19,7 @@ func NewHandler(store types.HabitStore, userStore types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/habits", auth.WithJWTAuth(h.handleGetHabits, h.userStore))
-	// router.POST("/habits", h.handleCreateHabit)
+	router.POST("/habits", auth.WithJWTAuth(h.handleCreateHabit, h.userStore))
 }
 
 func (h *Handler) handleGetHabits(c *gin.Context) {
@@ -32,4 +32,26 @@ func (h *Handler) handleGetHabits(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, hs)
+}
+
+func (h *Handler) handleCreateHabit(c *gin.Context) {
+	userID := auth.GetUserIDFromContext(c)
+
+	var payload types.CreateHabitPayload
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := h.store.CreateHabit(types.Habit{
+		UserID:      userID,
+		Title:       payload.Title,
+		Description: payload.Description,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, nil)
 }

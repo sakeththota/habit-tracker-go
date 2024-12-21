@@ -69,6 +69,7 @@ func (h *Handler) handleRegister(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	err = h.store.CreateUser(types.User{
 		Username:     payload.Username,
 		Email:        payload.Email,

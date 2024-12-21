@@ -12,6 +12,7 @@ type UserStore interface {
 
 type HabitStore interface {
 	GetHabits(user_id int) ([]Habit, error)
+	CreateHabit(habit Habit) error
 }
 
 type Habit struct {
@@ -39,4 +40,9 @@ type RegisterUserPayload struct {
 type LoginUserPayload struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
+}
+
+type CreateHabitPayload struct {
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"omitempty"`
 }

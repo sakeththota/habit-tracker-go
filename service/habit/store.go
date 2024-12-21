@@ -33,3 +33,12 @@ func (s *Store) GetHabits(user_id int) ([]types.Habit, error) {
 
 	return habits, nil
 }
+
+func (s *Store) CreateHabit(habit types.Habit) error {
+	_, err := s.db.Exec(context.Background(), "INSERT INTO habits (user_id, title, description) VALUES ($1, $2, $3)", habit.UserID, habit.Title, habit.Description)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
