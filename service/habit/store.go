@@ -42,3 +42,12 @@ func (s *Store) CreateHabit(habit types.Habit) error {
 
 	return nil
 }
+
+func (s *Store) DeleteHabit(user_id int, habit_id int) error {
+	_, err := s.db.Exec(context.Background(), "DELETE FROM habits WHERE user_id = $1 AND habit_id = $2", user_id, habit_id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

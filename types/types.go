@@ -13,6 +13,7 @@ type UserStore interface {
 type HabitStore interface {
 	GetHabits(user_id int) ([]Habit, error)
 	CreateHabit(habit Habit) error
+	DeleteHabit(user_id int, habit_id int) error
 }
 
 type Habit struct {

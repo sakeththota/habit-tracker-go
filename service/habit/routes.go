@@ -2,6 +2,7 @@ package habit
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sakeththota/habit-tracker-go/service/auth"
@@ -20,6 +21,7 @@ func NewHandler(store types.HabitStore, userStore types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/habits", auth.WithJWTAuth(h.handleGetHabits, h.userStore))
 	router.POST("/habits", auth.WithJWTAuth(h.handleCreateHabit, h.userStore))
+	router.DELETE("/habits/:id", auth.WithJWTAuth(h.handleDeleteHabit, h.userStore))
 }
 
 func (h *Handler) handleGetHabits(c *gin.Context) {
@@ -54,4 +56,21 @@ func (h *Handler) handleCreateHabit(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, nil)
+}
+
+func (h *Handler) handleDeleteHabit(c *gin.Context) {
+	userId := auth.GetUserIDFromContext(c)
+	habitId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.store.DeleteHabit(userId, habitId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
 }
