@@ -2,6 +2,7 @@
 
 - [x] Register and authenticate users
 - [x] Create, read, and delete habits
+- [ ] Progress service (in progress)
 
 ### Prereqs
 
