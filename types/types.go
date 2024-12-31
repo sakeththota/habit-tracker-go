@@ -16,6 +16,8 @@ type HabitStore interface {
 	DeleteHabit(user_id int, habit_id int) error
 }
 
+type ProgressStore interface{}
+
 type Habit struct {
 	ID          int       `json:"id"`
 	UserID      int       `json:"user_id"`
