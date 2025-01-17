@@ -88,12 +88,13 @@ func (h *Handler) handleRegister(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	fmt.Print(hashedPassword)
 
 	// create new user
 	err = h.store.CreateUser(types.User{
 		Username:     payload.Username,
 		Email:        payload.Email,
-		PasswordHash: hashedPassword, // have to hash this
+		PasswordHash: hashedPassword,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
