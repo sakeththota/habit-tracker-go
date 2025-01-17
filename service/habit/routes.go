@@ -1,12 +1,15 @@
 package habit
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sakeththota/habit-tracker-go/service/auth"
 	"github.com/sakeththota/habit-tracker-go/types"
+	"github.com/sakeththota/habit-tracker-go/utils"
 )
 
 type Handler struct {
@@ -29,7 +32,7 @@ func (h *Handler) handleGetHabits(c *gin.Context) {
 
 	hs, err := h.store.GetHabits(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong getting habit: %v", err)})
 		return
 	}
 
@@ -41,6 +44,11 @@ func (h *Handler) handleCreateHabit(c *gin.Context) {
 
 	var payload types.CreateHabitPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			formattedErrors := utils.FormatValidationErrors(validationErrors)
+			c.JSON(http.StatusBadRequest, gin.H{"errors": formattedErrors})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
