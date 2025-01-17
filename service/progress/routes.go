@@ -34,6 +34,7 @@ func (h *Handler) handleGetProgress(c *gin.Context) {
 	}
 
 	// should this be its own validation function in the habits service?
+	// h.habitStore.ValidateOwnership(habitID, userID)
 	habit, err := h.habitStore.GetHabitById(habitID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("failed to get habit by id: %v", err)})
