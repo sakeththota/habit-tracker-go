@@ -25,7 +25,6 @@ CREATE TABLE "Progress" (
     habit_id INT NOT NULL,               -- Foreign key referencing the Habit table
     progress_date DATE NOT NULL,         -- Date of progress
     is_completed BOOLEAN NOT NULL,       -- Whether the habit was completed on this date
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the progress entry was created
     UNIQUE (habit_id, progress_date),    -- Ensure one entry per habit per day
     FOREIGN KEY (habit_id) REFERENCES "Habit" (habit_id) ON DELETE CASCADE -- Cascade delete when a habit is removed
 );
