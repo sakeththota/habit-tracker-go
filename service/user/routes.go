@@ -30,10 +30,10 @@ func (h *Handler) handleLogin(c *gin.Context) {
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
 			formattedErrors := utils.FormatValidationErrors(validationErrors)
-			c.JSON(http.StatusBadRequest, gin.H{"errors": formattedErrors})
+			c.JSON(http.StatusBadRequest, gin.H{"errors": fmt.Errorf("invalid habit payload: %v", formattedErrors)})
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("something went wrong validating habit payload: %v", err)})
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *Handler) handleLogin(c *gin.Context) {
 	secret := []byte(config.Envs.JWTSecret)
 	token, err := auth.CreateJWT(secret, u.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong creating token: %v", err)})
 		return
 	}
 
@@ -63,10 +63,10 @@ func (h *Handler) handleRegister(c *gin.Context) {
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
 			formattedErrors := utils.FormatValidationErrors(validationErrors)
-			c.JSON(http.StatusBadRequest, gin.H{"errors": formattedErrors})
+			c.JSON(http.StatusBadRequest, gin.H{"errors": fmt.Errorf("invalid habit payload: %v", formattedErrors)})
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("something went wrong validating habit payload: %v", err)})
 		return
 	}
 
@@ -78,7 +78,7 @@ func (h *Handler) handleRegister(c *gin.Context) {
 
 	hashedPassword, err := auth.HashPassword(payload.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong hashing password: %v", err)})
 		return
 	}
 
@@ -88,7 +88,7 @@ func (h *Handler) handleRegister(c *gin.Context) {
 		PasswordHash: hashedPassword,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong creating user: %v", err)})
 		return
 	}
 

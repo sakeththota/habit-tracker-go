@@ -46,10 +46,10 @@ func (h *Handler) handleCreateHabit(c *gin.Context) {
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
 			formattedErrors := utils.FormatValidationErrors(validationErrors)
-			c.JSON(http.StatusBadRequest, gin.H{"errors": formattedErrors})
+			c.JSON(http.StatusBadRequest, gin.H{"errors": fmt.Errorf("invalid habit payload: %v", formattedErrors)})
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("something went wrong validating habit payload: %v", err)})
 		return
 	}
 
@@ -59,7 +59,7 @@ func (h *Handler) handleCreateHabit(c *gin.Context) {
 		Description: payload.Description,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong creating habit: %v", err)})
 		return
 	}
 
@@ -70,13 +70,13 @@ func (h *Handler) handleDeleteHabit(c *gin.Context) {
 	userId := auth.GetUserIDFromContext(c)
 	habitId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid habit id: %v", err)})
 		return
 	}
 
 	err = h.store.DeleteHabit(userId, habitId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong deleting habit: %v", err)})
 		return
 	}
 
