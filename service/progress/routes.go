@@ -2,7 +2,6 @@ package progress
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -30,26 +29,24 @@ func (h *Handler) handleGetProgress(c *gin.Context) {
 	userID := auth.GetUserIDFromContext(c)
 	habitID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid habit id: %v", err)})
 		return
 	}
 
 	// should this be its own validation function in the habits service?
 	habit, err := h.habitStore.GetHabitById(habitID)
 	if err != nil {
-		log.Printf("failed to get habit by id: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("failed to get habit by id: %v", err)})
 		return
 	}
 	if habit.UserID != userID {
-		log.Printf("failed to get progress of habit with id: %v", err)
-		c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied")})
+		c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied, failed to get progress of habit with id: %v", err)})
 		return
 	}
 
 	progress, err := h.store.GetProgress(habitID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong getting progress: %v", err)})
 		return
 	}
 

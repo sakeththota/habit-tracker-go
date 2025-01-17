@@ -1,12 +1,15 @@
 package habit
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sakeththota/habit-tracker-go/service/auth"
 	"github.com/sakeththota/habit-tracker-go/types"
+	"github.com/sakeththota/habit-tracker-go/utils"
 )
 
 type Handler struct {
@@ -29,7 +32,7 @@ func (h *Handler) handleGetHabits(c *gin.Context) {
 
 	hs, err := h.store.GetHabits(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong getting habit: %v", err)})
 		return
 	}
 
@@ -41,7 +44,12 @@ func (h *Handler) handleCreateHabit(c *gin.Context) {
 
 	var payload types.CreateHabitPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			formattedErrors := utils.FormatValidationErrors(validationErrors)
+			c.JSON(http.StatusBadRequest, gin.H{"errors": fmt.Errorf("invalid habit payload: %v", formattedErrors)})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("something went wrong validating habit payload: %v", err)})
 		return
 	}
 
@@ -51,7 +59,7 @@ func (h *Handler) handleCreateHabit(c *gin.Context) {
 		Description: payload.Description,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong creating habit: %v", err)})
 		return
 	}
 
@@ -62,13 +70,13 @@ func (h *Handler) handleDeleteHabit(c *gin.Context) {
 	userId := auth.GetUserIDFromContext(c)
 	habitId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid habit id: %v", err)})
 		return
 	}
 
 	err = h.store.DeleteHabit(userId, habitId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong deleting habit: %v", err)})
 		return
 	}
 

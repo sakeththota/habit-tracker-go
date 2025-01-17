@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sakeththota/habit-tracker-go/config"
 	"github.com/sakeththota/habit-tracker-go/service/auth"
 	"github.com/sakeththota/habit-tracker-go/types"
+	"github.com/sakeththota/habit-tracker-go/utils"
 )
 
 type Handler struct {
@@ -26,7 +28,12 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 func (h *Handler) handleLogin(c *gin.Context) {
 	var payload types.LoginUserPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			formattedErrors := utils.FormatValidationErrors(validationErrors)
+			c.JSON(http.StatusBadRequest, gin.H{"errors": fmt.Errorf("invalid habit payload: %v", formattedErrors)})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("something went wrong validating habit payload: %v", err)})
 		return
 	}
 
@@ -44,7 +51,7 @@ func (h *Handler) handleLogin(c *gin.Context) {
 	secret := []byte(config.Envs.JWTSecret)
 	token, err := auth.CreateJWT(secret, u.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong creating token: %v", err)})
 		return
 	}
 
@@ -54,7 +61,12 @@ func (h *Handler) handleLogin(c *gin.Context) {
 func (h *Handler) handleRegister(c *gin.Context) {
 	var payload types.RegisterUserPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			formattedErrors := utils.FormatValidationErrors(validationErrors)
+			c.JSON(http.StatusBadRequest, gin.H{"errors": fmt.Errorf("invalid habit payload: %v", formattedErrors)})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("something went wrong validating habit payload: %v", err)})
 		return
 	}
 
@@ -66,17 +78,17 @@ func (h *Handler) handleRegister(c *gin.Context) {
 
 	hashedPassword, err := auth.HashPassword(payload.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong hashing password: %v", err)})
 		return
 	}
 
 	err = h.store.CreateUser(types.User{
 		Username:     payload.Username,
 		Email:        payload.Email,
-		PasswordHash: hashedPassword, // have to hash this
+		PasswordHash: hashedPassword,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong creating user: %v", err)})
 		return
 	}
 
