@@ -34,13 +34,13 @@ func (h *Handler) handleGetProgress(c *gin.Context) {
 		return
 	}
 
+	// should this be its own validation function in the habits service?
 	habit, err := h.habitStore.GetHabitById(habitID)
 	if err != nil {
 		log.Printf("failed to get habit by id: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	if habit.UserID != userID {
 		log.Printf("failed to get progress of habit with id: %v", err)
 		c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied")})
