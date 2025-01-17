@@ -35,7 +35,7 @@ func (s *APIServer) Run() error {
 	habitHandler.RegisterRoutes(v1)
 
 	progressStore := progress.NewStore(s.db)
-	progressHandler := progress.NewHandler(progressStore, userStore)
+	progressHandler := progress.NewHandler(progressStore, userStore, habitStore)
 	progressHandler.RegisterRoutes(v1)
 
 	log.Println("Listening on", s.addr)

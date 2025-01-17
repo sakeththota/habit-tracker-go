@@ -34,6 +34,16 @@ func (s *Store) GetHabits(user_id int) ([]types.Habit, error) {
 	return habits, nil
 }
 
+func (s *Store) GetHabitById(habit_id int) (*types.Habit, error) {
+	habit := new(types.Habit)
+	err := s.db.QueryRow(context.Background(), "SELECT * FROM habits WHERE habit_id = $1", habit_id).Scan(&habit.ID, &habit.UserID, &habit.Title, &habit.Description, &habit.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return habit, nil
+}
+
 func (s *Store) CreateHabit(habit types.Habit) error {
 	_, err := s.db.Exec(context.Background(), "INSERT INTO habits (user_id, title, description) VALUES ($1, $2, $3)", habit.UserID, habit.Title, habit.Description)
 	if err != nil {

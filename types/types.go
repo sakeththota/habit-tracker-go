@@ -12,11 +12,22 @@ type UserStore interface {
 
 type HabitStore interface {
 	GetHabits(user_id int) ([]Habit, error)
+	GetHabitById(habit_id int) (*Habit, error)
 	CreateHabit(habit Habit) error
 	DeleteHabit(user_id int, habit_id int) error
 }
 
-type ProgressStore interface{}
+type ProgressStore interface {
+	GetProgress(habit_id int) ([]ProgressEntry, error)
+	MarkComplete(habit_id int) error
+}
+
+type ProgressEntry struct {
+	ID        int       `json:"id"`
+	HabitID   int       `json:"habit_id"`
+	Date      time.Time `json:"date"`
+	Completed bool      `json:"completed"`
+}
 
 type Habit struct {
 	ID          int       `json:"id"`
