@@ -23,26 +23,26 @@ type ProgressStore interface {
 }
 
 type ProgressEntry struct {
+	Date      time.Time `json:"date"`
 	ID        int       `json:"id"`
 	HabitID   int       `json:"habit_id"`
-	Date      time.Time `json:"date"`
 	Completed bool      `json:"completed"`
 }
 
 type Habit struct {
-	ID          int       `json:"id"`
-	UserID      int       `json:"user_id"`
+	CreatedAt   time.Time `json:"created_at"`
 	Title       string    `json:"title"`
 	Description string    `json:"string"`
-	CreatedAt   time.Time `json:"created_at`
+	ID          int       `json:"id"`
+	UserID      int       `json:"user_id"`
 }
 
 type User struct {
-	ID           int       `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID           int       `json:"id"`
 }
 
 type RegisterUserPayload struct {
