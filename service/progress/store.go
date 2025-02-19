@@ -24,7 +24,7 @@ func (s *Store) GetProgress(habit_id int) ([]types.ProgressEntry, error) {
 	progress := make([]types.ProgressEntry, 0)
 	for rows.Next() {
 		p := new(types.ProgressEntry)
-		err := rows.Scan(&p.ID, &p.HabitID, &p.Date, &p.Completed)
+		err := rows.Scan(&p.ID, &p.HabitID, &p.Date, &p.CreatedAt)
 		if err != nil {
 			return nil, err
 		}

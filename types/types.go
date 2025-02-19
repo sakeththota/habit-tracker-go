@@ -24,9 +24,9 @@ type ProgressStore interface {
 
 type ProgressEntry struct {
 	Date      time.Time `json:"date"`
+	CreatedAt time.Time `json:"created_at"`
 	ID        int       `json:"id"`
 	HabitID   int       `json:"habit_id"`
-	Completed bool      `json:"completed"`
 }
 
 type Habit struct {
