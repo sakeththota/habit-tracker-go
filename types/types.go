@@ -19,30 +19,30 @@ type HabitStore interface {
 
 type ProgressStore interface {
 	GetProgress(habit_id int) ([]ProgressEntry, error)
-	MarkComplete(habit_id int) error
+	CreateCompletion(habit_id int, date string) error
 }
 
 type ProgressEntry struct {
+	Date      time.Time `json:"date"`
+	CreatedAt time.Time `json:"created_at"`
 	ID        int       `json:"id"`
 	HabitID   int       `json:"habit_id"`
-	Date      time.Time `json:"date"`
-	Completed bool      `json:"completed"`
 }
 
 type Habit struct {
-	ID          int       `json:"id"`
-	UserID      int       `json:"user_id"`
+	CreatedAt   time.Time `json:"created_at"`
 	Title       string    `json:"title"`
 	Description string    `json:"string"`
-	CreatedAt   time.Time `json:"created_at`
+	ID          int       `json:"id"`
+	UserID      int       `json:"user_id"`
 }
 
 type User struct {
-	ID           int       `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID           int       `json:"id"`
 }
 
 type RegisterUserPayload struct {

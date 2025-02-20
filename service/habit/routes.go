@@ -24,7 +24,7 @@ func NewHandler(store types.HabitStore, userStore types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/habits", auth.WithJWTAuth(h.handleGetHabits, h.userStore))
 	router.POST("/habits", auth.WithJWTAuth(h.handleCreateHabit, h.userStore))
-	router.DELETE("/habits/:id", auth.WithJWTAuth(h.handleDeleteHabit, h.userStore))
+	router.DELETE("/habits/:id", auth.ValidateOwnership(auth.WithJWTAuth(h.handleDeleteHabit, h.userStore), h.store))
 }
 
 func (h *Handler) handleGetHabits(c *gin.Context) {
@@ -67,14 +67,14 @@ func (h *Handler) handleCreateHabit(c *gin.Context) {
 }
 
 func (h *Handler) handleDeleteHabit(c *gin.Context) {
-	userId := auth.GetUserIDFromContext(c)
-	habitId, err := strconv.Atoi(c.Param("id"))
+	userID := auth.GetUserIDFromContext(c)
+	habitID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid habit id: %v", err)})
 		return
 	}
 
-	err = h.store.DeleteHabit(userId, habitId)
+	err = h.store.DeleteHabit(userID, habitID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong deleting habit: %v", err)})
 		return

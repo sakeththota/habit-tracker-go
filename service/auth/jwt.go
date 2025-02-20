@@ -28,6 +28,31 @@ func CreateJWT(secret []byte, userID int) (string, error) {
 	return tokenString, nil
 }
 
+func ValidateOwnership(handlerFunc gin.HandlerFunc, store types.HabitStore) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// get userID and habitID from context / request
+		userID := GetUserIDFromContext(c)
+		habitID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid habit id: %v", err)})
+			return
+		}
+
+		// check if habit with habitID has a matching user ID for ownership
+		habit, err := store.GetHabitById(habitID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("failed to get habit by id: %v", err)})
+			return
+		}
+		if habit.UserID != userID {
+			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied, failed to get progress of habit with id: %v", err)})
+			return
+		}
+
+		handlerFunc(c)
+	}
+}
+
 func WithJWTAuth(handlerFunc gin.HandlerFunc, store types.UserStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// get token from user request
