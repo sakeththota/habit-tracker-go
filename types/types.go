@@ -19,7 +19,7 @@ type HabitStore interface {
 
 type ProgressStore interface {
 	GetProgress(habit_id int) ([]ProgressEntry, error)
-	MarkComplete(habit_id int) error
+	CreateCompletion(habit_id int, date string) error
 }
 
 type ProgressEntry struct {
