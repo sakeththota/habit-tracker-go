@@ -55,7 +55,3 @@ func (h *Handler) handleGetProgress(c *gin.Context) {
 
 	c.JSON(http.StatusOK, progress)
 }
-
-func (h *Handler) handleGetProgressHello(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Hello!"})
-}
