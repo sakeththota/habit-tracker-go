@@ -24,7 +24,7 @@ func NewHandler(store types.HabitStore, userStore types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/habits", auth.WithJWTAuth(h.handleGetHabits, h.userStore))
 	router.POST("/habits", auth.WithJWTAuth(h.handleCreateHabit, h.userStore))
-	router.DELETE("/habits/:id", auth.ValidateOwnership(auth.WithJWTAuth(h.handleDeleteHabit, h.userStore), h.store))
+	router.DELETE("/habits/:id", auth.WithJWTAuth(auth.ValidateOwnership(h.handleDeleteHabit, h.store), h.userStore))
 }
 
 func (h *Handler) handleGetHabits(c *gin.Context) {

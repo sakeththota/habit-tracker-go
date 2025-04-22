@@ -21,8 +21,8 @@ func NewHandler(store types.ProgressStore, userStore types.UserStore, habitStore
 }
 
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
-	router.GET("/progress/:id", auth.ValidateOwnership(auth.WithJWTAuth(h.handleGetProgress, h.userStore), h.habitStore))
-	router.POST("/progress/:id/:date", auth.ValidateOwnership(auth.WithJWTAuth(h.handleMarkComplete, h.userStore), h.habitStore))
+	router.GET("/progress/:id", auth.WithJWTAuth(auth.ValidateOwnership(h.handleGetProgress, h.habitStore), h.userStore))
+	router.POST("/progress/:id/:date", auth.WithJWTAuth(auth.ValidateOwnership(h.handleMarkComplete, h.habitStore), h.userStore))
 }
 
 func (h *Handler) handleMarkComplete(c *gin.Context) {
@@ -34,6 +34,7 @@ func (h *Handler) handleMarkComplete(c *gin.Context) {
 	date := c.Param("date")
 
 	err = h.store.CreateCompletion(habitID, date)
+	fmt.Printf("completed\n")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("something went wrong marking habit complete: %v", err)})
 	}

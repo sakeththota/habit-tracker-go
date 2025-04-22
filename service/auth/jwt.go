@@ -33,6 +33,9 @@ func ValidateOwnership(handlerFunc gin.HandlerFunc, store types.HabitStore) gin.
 		// get userID and habitID from context / request
 		userID := GetUserIDFromContext(c)
 		habitID, err := strconv.Atoi(c.Param("id"))
+
+		fmt.Printf("Validating User: %d with Habit: %d\n", userID, habitID)
+
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid habit id: %v", err)})
 			return
@@ -89,6 +92,8 @@ func WithJWTAuth(handlerFunc gin.HandlerFunc, store types.UserStore) gin.Handler
 			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("permission denied")})
 			return
 		}
+
+		fmt.Printf("logged in user with id: %d\n", u.ID)
 
 		// set context "userId"
 		c.Set("userID", u.ID)

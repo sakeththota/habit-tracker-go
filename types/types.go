@@ -32,7 +32,7 @@ type ProgressEntry struct {
 type Habit struct {
 	CreatedAt   time.Time `json:"created_at"`
 	Title       string    `json:"title"`
-	Description string    `json:"string"`
+	Description string    `json:"description"`
 	ID          int       `json:"id"`
 	UserID      int       `json:"user_id"`
 }
