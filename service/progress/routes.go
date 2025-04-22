@@ -21,7 +21,6 @@ func NewHandler(store types.ProgressStore, userStore types.UserStore, habitStore
 }
 
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
-	router.GET("/progress/hello", h.handleGetProgressHello)
 	router.GET("/progress/:id", auth.ValidateOwnership(auth.WithJWTAuth(h.handleGetProgress, h.userStore), h.habitStore))
 	router.POST("/progress/:id/:date", auth.ValidateOwnership(auth.WithJWTAuth(h.handleMarkComplete, h.userStore), h.habitStore))
 }
