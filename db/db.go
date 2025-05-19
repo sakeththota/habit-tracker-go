@@ -19,7 +19,7 @@ type PgxConfig struct {
 }
 
 func NewPgxPool(cfg PgxConfig) (*pgxpool.Pool, error) {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Schema)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=require&search_path=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Schema)
 	ctx := context.Background()
 	dbpool, err := pgxpool.New(ctx, connStr)
 	if err != nil {
@@ -30,7 +30,7 @@ func NewPgxPool(cfg PgxConfig) (*pgxpool.Pool, error) {
 }
 
 func NewPgxDb(cfg PgxConfig) (*sql.DB, error) {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Schema)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=require&search_path=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Schema)
 
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
