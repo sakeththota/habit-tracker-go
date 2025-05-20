@@ -47,5 +47,5 @@ jobs:
             docker stop habit-tracker-go || true
             docker rm habit-tracker-go || true
             docker run -d --name habit-tracker-go \
-              --env-file /home/.env \
+              --env-file .env \
               -p ${{ secrets.PORT }}:8080 habit-tracker-go
