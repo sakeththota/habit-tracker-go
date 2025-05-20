@@ -43,9 +43,14 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # load image
             docker load < ~/habit-tracker-go.tar
+
+            # stop and remove old container
             docker stop habit-tracker-go || true
             docker rm habit-tracker-go || true
+
+            # run new container
             docker run -d --name habit-tracker-go \
               --env-file .env \
               -p ${{ secrets.PORT }}:8080 habit-tracker-go
