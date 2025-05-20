@@ -3,6 +3,7 @@ name: Build, Test, & Deploy to EC2
 on:
   push:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   build-test-deploy:
