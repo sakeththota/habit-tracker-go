@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sakeththota/habit-tracker-go/service/habit"
+	"github.com/sakeththota/habit-tracker-go/service/health"
 	"github.com/sakeththota/habit-tracker-go/service/progress"
 	"github.com/sakeththota/habit-tracker-go/service/user"
 )
@@ -37,6 +38,10 @@ func (s *APIServer) Run() error {
 	progressStore := progress.NewStore(s.db)
 	progressHandler := progress.NewHandler(progressStore, userStore, habitStore)
 	progressHandler.RegisterRoutes(v2)
+
+	healthStore := health.NewStore(s.db)
+	healthHandler := health.NewHandler(healthStore)
+	healthHandler.RegisterRoutes(v2)
 
 	log.Println("Listening on", s.addr)
 	return router.Run(s.addr)

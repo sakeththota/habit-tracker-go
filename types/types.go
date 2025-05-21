@@ -1,6 +1,7 @@
 package types
 
 import (
+	"context"
 	"time"
 )
 
@@ -20,6 +21,10 @@ type HabitStore interface {
 type ProgressStore interface {
 	GetProgress(habit_id int) ([]ProgressEntry, error)
 	CreateCompletion(habit_id int, date string) error
+}
+
+type HealthStore interface {
+	PingDB(ctx context.Context) error
 }
 
 type ProgressEntry struct {
