@@ -24,7 +24,7 @@ jobs:
 
       - name: Run migrations
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.RDS_URL }}
         run: |
           migrate -verbose -database "$DATABASE_URL" -path ./migrations up
 
