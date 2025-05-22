@@ -9,25 +9,6 @@ permissions:
   contents: read
 
 jobs:
-  run-migrations:
-    name: Run DB Migrations
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Install migrate CLI
-        run: |
-          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-amd64.tar.gz | tar xz
-          sudo mv migrate /usr/local/bin/
-
-      - name: Run migrations
-        env:
-          DATABASE_URL: ${{ secrets.RDS_URL }}
-        run: |
-          migrate -verbose -database "$DATABASE_URL" -path ./migrations up
-
   build-test-deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
@@ -44,6 +25,15 @@ jobs:
 
       - name: Run tests
         run: go test -v ./...
+
+      - name: Copy migrations to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "migrations"
+          target: "~/"
 
       - name: Build Docker image
         run: docker build -t habit-tracker-go .
@@ -66,7 +56,19 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
+          env:
+            PORT: ${{ secrets.PORT }}
+            RDS_URL: ${{ secrets.RDS_URL}}
           script: |
+            # install migrate CLI (if not installed)
+            if ! command -v migrate &> /dev/null; then
+              curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-amd64.tar.gz | tar xz
+              sudo mv migrate /usr/local/bin/
+            fi
+
+            # run migrations
+            migrate -database "$RDS_URL" -path ./migrations up
+
             # load image
             docker load < ~/habit-tracker-go.tar
 
@@ -77,4 +79,4 @@ jobs:
             # run new container
             docker run -d --name habit-tracker-go \
               --env-file .env \
-              -p ${{ secrets.PORT }}:8080 habit-tracker-go
+              -p "$PORT":8080 habit-tracker-go
