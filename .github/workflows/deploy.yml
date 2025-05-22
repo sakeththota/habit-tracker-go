@@ -52,13 +52,13 @@ jobs:
 
       - name: SSH into EC2 to load/run container
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          PORT: ${{ secrets.PORT }}
+          RDS_URL: ${{ secrets.RDS_URL}}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          env:
-            PORT: ${{ secrets.PORT }}
-            RDS_URL: ${{ secrets.RDS_URL}}
           script: |
             # install migrate CLI (if not installed)
             if ! command -v migrate &> /dev/null; then
